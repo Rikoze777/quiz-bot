@@ -22,3 +22,7 @@ touch .env
 * TG_TOKEN='Ваш телеграм токен'  [Получают при создании у отца ботов](https://t.me/botfather)
 * USER_ID='ID вашей личной страницы Telegram' [узнать можно тут](https://t.me/username_to_id_bot)
 * VK_TOKEN='Токен вашей группы ВК' Не забудьте также разрешить отправление сообщений группе
+* FILES_PATH='Путь к файлам вопросов'
+* REDIS_ADDRESS='Your redis address' [Можно получить после регистации на redis](https://www.redislabs.com/)
+* REDIS_PORT='Your redis port'
+* REPIS_PASSWORD='Your redis password'
