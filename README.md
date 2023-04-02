@@ -4,6 +4,11 @@
 [TG bot](https://t.me/quizo_devBot)
 [VK bot](https://vk.com/club219726001)
 
+![tg](https://user-images.githubusercontent.com/61386361/229367695-0e442465-bf39-4786-b188-06c4372f7e71.gif)
+
+![vk_bot4](https://user-images.githubusercontent.com/61386361/229367707-2b0564da-fa3e-4e96-8e01-4880181a4cc3.gif)
+
+
 ## Установка
 
 1) Клонировать проект:
