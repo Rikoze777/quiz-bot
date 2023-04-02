@@ -101,7 +101,7 @@ def main() -> None:
                                    decode_responses=True)
     quiz_tasks = update_questions(path)
 
-    bot = telegram.Bot(token=env("TG_TOKEN"))
+    bot = telegram.Bot(token=tg_token)
     logger.setLevel(logging.ERROR)
     logger.addHandler(TelegramLogsHandler(bot, user_id))
 

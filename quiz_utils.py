@@ -34,6 +34,6 @@ def fix_answer(text):
 
 
 def check_user_answer(user_answer, correct_answer):
-    matches = re.search(r"^[^.()]+", correct_answer)
+    matches = re.search(r"^[^.()]+", str(correct_answer))
     return fix_answer(user_answer.lower()) ==\
         fix_answer(matches.group().lower())
