@@ -1,5 +1,6 @@
 # quiz-bot
 
+Приложение для проведения викторины с вопросами.
 
 ## Установка
 
@@ -26,3 +27,17 @@ touch .env
 * REDIS_ADDRESS='Your redis address' [Можно получить после регистации на redis](https://www.redislabs.com/)
 * REDIS_PORT='Your redis port'
 * REDIS_PASSWORD='Your redis password'
+
+## Запуск
+
+Команды для запуска ботов
+
+Телеграм:
+```
+python tg_bot.py
+```
+
+Вконтакте:
+```
+python vk_bot.py
+```
