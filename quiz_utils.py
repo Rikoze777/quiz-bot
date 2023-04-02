@@ -1,5 +1,4 @@
 import os
-import pprint
 import re
 from string import punctuation
 
@@ -9,28 +8,22 @@ def get_quiz_tasks(file_path):
         quiz_questions = file.read()
 
     splited_file = quiz_questions.split('\n\n')
-    question_number = 0
-    quiz = {}
+    questions = []
+    answers = []
     for chunk in splited_file:
         if 'Вопрос' in chunk:
-            question_number += 1
             question = chunk.partition(':\n')[2]
-            quiz[f'Вопрос - {question_number}'] = {'question': question}
+            questions.append(question)
         elif 'Ответ' in chunk:
             answer = chunk.partition(':\n')[2]
-            try:
-                quiz.get(f'Вопрос - {question_number}')['answer'] = answer
-            except TypeError:
-                quiz[f'Вопрос - {question_number}'] = 'No answer'
-    return quiz
+            answers.append(answer)
+    return dict(zip(questions, answers))
 
 
 def update_questions(path):
     questions = {}
-
     for file in os.listdir(path):
         questions.update(get_quiz_tasks(file))
-    pprint.pprint(questions)
     return questions
 
 

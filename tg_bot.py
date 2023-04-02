@@ -1,16 +1,19 @@
 import logging
-from environs import Env
 import random
-from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
-                          CallbackContext, ConversationHandler)
-from quiz import update_questions
-from functools import partial
+
 import redis
+import telegram
+from environs import Env
+from logs_handler import TelegramLogsHandler
+from quiz_utils import check_user_answer, update_questions
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
+from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
+                          Filters, MessageHandler, Updater)
 
 
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
 )
 
 logger = logging.getLogger(__name__)
@@ -29,17 +32,50 @@ def start(update: Update, context: CallbackContext) -> None:
     )
 
 
-def new_question(update: Update, context: CallbackContext) -> None:
+def handle_new_question_request(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user["id"]
     redis = context.bot_data["redis_connection"]
     quiz_questions = context.bot_data["quiz_tasks"]
-    question_number = random.choice(list(quiz_questions))
-    question = quiz_questions.get(question_number)['question']
+    question = random.choice(list(quiz_questions.keys()))
     context.user_data[update.effective_user.id] = question
-    # reply_markup = ReplyKeyboardMarkup(CUSTOM_KEYBOARD, resize_keyboard=True)
     redis.set(user_id, question)
     update.message.reply_text(question)
-    # return 'user_answer'
+
+
+def handle_solution_attempt(update: Update, context: CallbackContext):
+    redis_connection = context.bot_data["redis_connection"]
+    question = redis_connection.get(update.message.chat_id)
+    correct_answer = context.bot_data["quiz_tasks"].get(question)
+    user_answer = update.message.text
+    keyboard = CUSTOM_KEYBOARD
+    markup = ReplyKeyboardMarkup(
+            keyboard,
+            resize_keyboard=True,
+            one_time_keyboard=True
+        )
+    if check_user_answer(user_answer, correct_answer):
+        update.message.reply_text(
+            "Поздравляю! Верно!"
+            "Нажми «Новый вопрос» для продолжения",
+            reply_markup=markup
+        )
+    else:
+        update.message.reply_text(
+            "Неправильно… Попробуешь ещё раз?",
+            reply_markup=markup
+        )
+
+
+def send_answer(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user["id"]
+    question = context.bot_data["redis_connection"].get(user_id)
+    correct_answer = context.bot_data["quiz_tasks"].get(question)
+    update.message.reply_text(correct_answer)
+    return handle_new_question_request(update, context)
+
+
+def handle_error(update: Update, context: CallbackContext):
+    logger.exception(context.error)
 
 
 def end(update: Update, context: CallbackContext):
@@ -54,6 +90,7 @@ def main() -> None:
     env = Env()
     env.read_env()
     tg_token = env.str("TG_TOKEN")
+    user_id = env.str("USER_ID")
     path = env.str('FILES_PATH')
     redis_password = env.str('REPIS_PASSWORD')
     port = env.str('REDIS_PORT')
@@ -64,29 +101,37 @@ def main() -> None:
                                    decode_responses=True)
     quiz_tasks = update_questions(path)
 
+    bot = telegram.Bot(token=env("TG_TOKEN"))
+    logger.setLevel(logging.ERROR)
+    logger.addHandler(TelegramLogsHandler(bot, user_id))
+
     updater = Updater(tg_token)
 
     dispatcher = updater.dispatcher
 
     dispatcher.bot_data["redis_connection"] = redis_connection
     dispatcher.bot_data["quiz_tasks"] = quiz_tasks
+    dispatcher.add_error_handler(handle_error)
 
     dispatcher.add_handler(CommandHandler("start", start))
 
     dispatcher.add_handler(
         MessageHandler(
             Filters.regex("^Новый вопрос"),
-            new_question
+            handle_new_question_request
         ),
     )
-    # dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command,
-    #                                       new_question))
+    dispatcher.add_handler(
+        MessageHandler(Filters.regex("^Сдаться"), send_answer),
+    )
 
-    # dispatcher.add_handler(
-    #     MessageHandler(Filters.regex("^Сдаться"), send_correct_answer),
-    # )
-
-    dispatcher.add_handler(CommandHandler("end", end))
+    dispatcher.add_handler(
+        MessageHandler(
+            Filters.text & ~Filters.command,
+            handle_solution_attempt
+        )
+    )
+    dispatcher.add_handler(CommandHandler('end', end))
 
     updater.start_polling()
     updater.idle()

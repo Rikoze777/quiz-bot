@@ -25,4 +25,4 @@ touch .env
 * FILES_PATH='Путь к файлам вопросов'
 * REDIS_ADDRESS='Your redis address' [Можно получить после регистации на redis](https://www.redislabs.com/)
 * REDIS_PORT='Your redis port'
-* REPIS_PASSWORD='Your redis password'
+* REDIS_PASSWORD='Your redis password'
