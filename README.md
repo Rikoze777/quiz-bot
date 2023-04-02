@@ -1,6 +1,8 @@
 # quiz-bot
 
 Приложение для проведения викторины с вопросами.
+[TG bot](https://t.me/quizo_devBot)
+[VK bot](https://vk.com/club219726001)
 
 ## Установка
 
