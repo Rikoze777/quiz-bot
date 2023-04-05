@@ -1,4 +1,5 @@
 import logging
+import os
 import random
 
 import redis
@@ -9,7 +10,6 @@ from quiz_utils import check_user_answer, update_questions
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
                           Filters, MessageHandler, Updater)
-
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -91,7 +91,7 @@ def main() -> None:
     env.read_env()
     tg_token = env.str("TG_TOKEN")
     user_id = env.str("USER_ID")
-    path = env.str('FILES_PATH')
+    path = os.getenv('FILES_PATH', default='quiz-questions')
     redis_password = env.str('REPIS_PASSWORD')
     port = env.str('REDIS_PORT')
     host = env.str('REDIS_ADDRESS')

@@ -1,4 +1,5 @@
 import logging
+import os
 import random
 
 import redis
@@ -9,7 +10,6 @@ from logs_handler import TelegramLogsHandler
 from quiz_utils import check_user_answer, update_questions
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.longpoll import VkEventType, VkLongPoll
-
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ def main():
     env.read_env()
     tg_token = env.str("TG_TOKEN")
     user_id = env.str("USER_ID")
-    path = env.str('FILES_PATH')
+    path = os.getenv('FILES_PATH', default='quiz-questions')
     redis_password = env.str('REPIS_PASSWORD')
     port = env.str('REDIS_PORT')
     host = env.str('REDIS_ADDRESS')

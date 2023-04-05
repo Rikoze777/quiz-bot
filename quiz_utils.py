@@ -1,5 +1,6 @@
 import os
 import re
+from pathlib import Path
 from string import punctuation
 
 
@@ -23,7 +24,8 @@ def get_quiz_tasks(file_path):
 def update_questions(path):
     questions = {}
     for file in os.listdir(path):
-        questions.update(get_quiz_tasks(file))
+        file_path = Path(file)
+        questions.update(get_quiz_tasks(file_path))
     return questions
 
 
