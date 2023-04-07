@@ -1,11 +1,10 @@
 import os
 import re
-from pathlib import Path
 from string import punctuation
 
 
 def get_quiz_tasks(file_path):
-    with open(f"quiz-questions/{file_path}", 'r', encoding='KOI8-R') as file:
+    with open(file_path, 'r', encoding='KOI8-R') as file:
         quiz_questions = file.read()
 
     splited_file = quiz_questions.split('\n\n')
@@ -24,7 +23,7 @@ def get_quiz_tasks(file_path):
 def update_questions(path):
     questions = {}
     for file in os.listdir(path):
-        file_path = Path(file)
+        file_path = os.path.join(path, file)
         questions.update(get_quiz_tasks(file_path))
     return questions
 
